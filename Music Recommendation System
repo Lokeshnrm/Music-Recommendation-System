@@ -1,0 +1,37 @@
+# Install the Surprise library: pip install scikit-surprise
+
+from surprise import Dataset, Reader, KNNBasic
+from surprise.model_selection import train_test_split
+from surprise import accuracy
+
+# Sample dataset (replace with your own)
+data = Dataset.load_builtin('ml-100k')
+
+# Define the reader
+reader = Reader(rating_scale=(1, 5))
+
+# Load data
+data = Dataset.load_from_df(data.raw_ratings, reader)
+
+# Split the dataset
+trainset, testset = train_test_split(data, test_size=0.25)
+
+# Use the KNNBasic algorithm
+sim_options = {'name': 'cosine', 'user_based': False}
+algo = KNNBasic(sim_options=sim_options)
+
+# Train the model
+algo.fit(trainset)
+
+# Make predictions
+predictions = algo.test(testset)
+
+# Evaluate the model
+accuracy.rmse(predictions)
+
+# Recommend music for a specific user (replace user_id)
+user_id = str(196)
+user_predictions = algo.get_neighbors(int(user_id), k=5)
+
+# Print recommended music
+print(f"Top 5 recommendations for user {user_id}: {user_predictions}")
